@@ -42,7 +42,7 @@ module aes_tb #(
   );
 
   logic [31:0] count;
-  logic [31:0] reg_offset;
+  // logic [31:0] reg_offset;
   logic [31:0] fsm;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : tb_ctrl
@@ -68,214 +68,242 @@ module aes_tb #(
 
       count <= count + 32'b1;
 
-
       // below works 
         if (fsm == 32'b0) begin
           if (count > 32'h20) begin
-            // $display("count %0h.", count);
-            // $display("fsm   %0h.", fsm);
-            if (count % 32'h8 == 7) begin
-              fsm <= {1'b1, AES_CTRL_SHADOWED_OFFSET};
-              h2d.d_ready   <= 1'b1;          
-              h2d.a_valid   <= 1'b1;          
-
-            end
+            fsm <= {1'b1, AES_CTRL_SHADOWED_OFFSET};
+            count         <= 32'b0;        
+            h2d.d_ready   <= 1'b1;          
+            h2d.a_valid   <= 1'b1;
           end
         end
 
         if (fsm == {2'h1, AES_CTRL_SHADOWED_OFFSET}) begin
-          // $display("count %0h.", count);
-          // $display("fsm   %0h.", fsm);
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_CTRL_SHADOWED_OFFSET;
             h2d.a_data    <= {1'b1, 3'b001, 4'b0001, 1'b0}; // manual_operation=manual, key_len=aes_128, mode=aes_ecb, operation=encrypt
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY0_OFFSET};
+            count <= 32'b0;        
           end
         end
 
         if (fsm == {1'b1, AES_KEY0_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY0_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY1_OFFSET};
+            count <= 32'b0;        
           end
         end
 
         if (fsm == {1'b1, AES_KEY1_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY1_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY2_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_KEY2_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY2_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY3_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_KEY3_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY3_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY4_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_KEY4_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY4_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY5_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_KEY5_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY5_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY6_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_KEY6_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY6_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_KEY7_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_KEY7_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_KEY7_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_IV0_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_IV0_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_IV0_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_IV1_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_IV1_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_IV1_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_IV2_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_IV2_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_IV2_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_IV3_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_IV3_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_IV3_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_DATA_IN0_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_DATA_IN0_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_DATA_IN0_OFFSET;
             h2d.a_data    <= 32'b01;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_DATA_IN1_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_DATA_IN1_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_DATA_IN1_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_DATA_IN2_OFFSET};
+            count <= 32'b0;        
           end
         end
         
         if (fsm == {1'b1, AES_DATA_IN2_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_DATA_IN2_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_DATA_IN3_OFFSET};
+            count <= 32'b0;        
           end
         end
 
         if (fsm == {1'b1, AES_DATA_IN3_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_DATA_IN3_OFFSET;
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_TRIGGER_OFFSET};
+            count <= 32'b0;        
           end
         end
 
         if (fsm == {1'b1, AES_TRIGGER_OFFSET}) begin
-          if (count % 32'h8 == 0) begin
+          if (count == 0) begin
             h2d.a_address <= AES_TRIGGER_OFFSET;
             h2d.a_data    <= 1'b1;
             h2d.a_mask     <= 4'b1111;
-          end else if (count % 32'h8 == 7) begin
+          end 
+          if (count == 3) begin
             fsm <= {1'b1, AES_STATUS_OFFSET};
+            count  <= 32'b0;        
           end
         end
 
         if (fsm == {1'b1, AES_STATUS_OFFSET}) begin
-          h2d.a_valid    <= 1'b1;
-
-          h2d.a_opcode   <= 3'b001;//32'b0;//
-          h2d.a_address  <= AES_STATUS_OFFSET;
+          if (count % 32'h8 == 0) begin
+            // h2d.a_valid    <= 1'b1;
+            h2d.a_opcode   <= 3'b001;//32'b0;//
+            h2d.a_address  <= AES_STATUS_OFFSET;
+          end
 
           if (d2h.d_data == 4'b1101) begin
-            // test_done_o <= 1'b1;
-            if (count % 32'h8 == 7) begin
-              fsm <= {1'b1, AES_DATA_OUT0_OFFSET};
-            end
+            fsm <= {1'b1, AES_DATA_OUT0_OFFSET};
+            count <= 32'b0;        
           end
 
           $display("AES_STATUS_OFFSET %0h.", d2h.d_data);
@@ -283,39 +311,47 @@ module aes_tb #(
       // above works
 
       if (fsm == {1'b1, AES_DATA_OUT0_OFFSET}) begin
-        if (count % 32'h8 == 0) begin
+        if (count == 0) begin
           h2d.a_address <= AES_DATA_OUT0_OFFSET;
-        end else if (count % 32'h8 == 7) begin
+        end 
+        if (count == 3) begin
           $display("AES_DATA_OUT0_OFFSET %0h.", d2h.d_data);
           fsm <= {1'b1, AES_DATA_OUT1_OFFSET};
+          count <= 32'b0;        
         end
       end
 
       if (fsm == {1'b1, AES_DATA_OUT1_OFFSET}) begin
-        if (count % 32'h8 == 0) begin
+        if (count == 0) begin
           h2d.a_address <= AES_DATA_OUT1_OFFSET;
-        end else if (count % 32'h8 == 7) begin
+        end 
+        if (count == 3) begin
           $display("AES_DATA_OUT1_OFFSET %0h.", d2h.d_data);
           fsm <= {1'b1, AES_DATA_OUT2_OFFSET};
+          count <= 32'b0;        
         end
       end
 
       if (fsm == {1'b1, AES_DATA_OUT2_OFFSET}) begin
-        if (count % 32'h8 == 0) begin
+        if (count == 0) begin
           h2d.a_address <= AES_DATA_OUT2_OFFSET;
-        end else if (count % 32'h8 == 7) begin
+        end 
+        if (count == 3) begin
           $display("AES_DATA_OUT2_OFFSET %0h.", d2h.d_data);
           fsm <= {1'b1, AES_DATA_OUT3_OFFSET};
+          count <= 32'b0;        
         end
       end
 
       if (fsm == {1'b1, AES_DATA_OUT3_OFFSET}) begin
-        if (count % 32'h8 == 0) begin
+        if (count == 0) begin
           h2d.a_address <= AES_DATA_OUT3_OFFSET;
-        end else if (count % 32'h8 == 7) begin
+        end 
+        if (count == 3) begin
           $display("AES_DATA_OUT3_OFFSET %0h.", d2h.d_data);
           test_done_o <= 1'b1;
           fsm <= 12'hFFF;
+          count <= 32'b0;        
         end
       end
 
