@@ -69,49 +69,42 @@ bool AESTB::ParseCLIArguments(int argc, char **argv, bool &exit_app) {
   // Reset the command parsing index in-case other utils have already parsed
   // some arguments
   optind = 1;
-  std::string optarg_s;
-  bool key_inited = false, input_inited = false;
 
   while (1) {
     int c = getopt_long(argc, argv, "k:i:h", long_options, nullptr);
-
     if (c == -1) {
       break;
     }
 
     // Disable error reporting by getopt
     opterr = 0;
-    optarg_s = optarg;
 
     switch (c) {
       case 0:
         break;
-      case 'k':
-        if (optarg_s.length() != 32) {
-          std::cerr << "ERROR: Invalid --key arg length (" << optarg_s.length() << "): " << optarg_s << std::endl;
+      case 'k': {
+        std::string key_str(optarg);
+        if (key_str.length() != 32) {
+          std::cerr << "ERROR: Invalid --key arg length (" << key_str.length() << "): " << key_str << std::endl;
+          return false;
+        }
+        top_->aes_key[3] = std::stoul(key_str.substr(0,8) , nullptr, 16);
+        top_->aes_key[2] = std::stoul(key_str.substr(8,8) , nullptr, 16);
+        top_->aes_key[1] = std::stoul(key_str.substr(16,8), nullptr, 16);
+        top_->aes_key[0] = std::stoul(key_str.substr(24,8), nullptr, 16);
+      } break;
+      case 'i': {
+        std::string input_str(optarg);
+        if (input_str.length() != 32) {
+          std::cerr << "ERROR: Invalid --key arg length (" << input_str.length() << "): " << input_str << std::endl;
           return false;
         }
 
-        top_->aes_key[3] = std::stoul(optarg_s.substr(0,8) , nullptr, 16);
-        top_->aes_key[2] = std::stoul(optarg_s.substr(8,8) , nullptr, 16);
-        top_->aes_key[1] = std::stoul(optarg_s.substr(16,8), nullptr, 16);
-        top_->aes_key[0] = std::stoul(optarg_s.substr(24,8), nullptr, 16);
-
-        key_inited = true;
-        break;
-      case 'i':
-        if (optarg_s.length() != 32) {
-          std::cerr << "ERROR: Invalid --input arg length (" << optarg_s.length() << "): " << optarg_s << std::endl;
-          return false;
-        }
-
-        top_->aes_input[3] = std::stoul(optarg_s.substr(0,8) , nullptr, 16);
-        top_->aes_input[2] = std::stoul(optarg_s.substr(8,8) , nullptr, 16);
-        top_->aes_input[1] = std::stoul(optarg_s.substr(16,8), nullptr, 16);
-        top_->aes_input[0] = std::stoul(optarg_s.substr(24,8), nullptr, 16);
-
-        input_inited = true;
-        break;
+        top_->aes_input[3] = std::stoul(input_str.substr(0,8) , nullptr, 16);
+        top_->aes_input[2] = std::stoul(input_str.substr(8,8) , nullptr, 16);
+        top_->aes_input[1] = std::stoul(input_str.substr(16,8), nullptr, 16);
+        top_->aes_input[0] = std::stoul(input_str.substr(24,8), nullptr, 16);
+      } break;
       case 'h':
         PrintHelp();
       case ':':  // missing argument
@@ -120,14 +113,8 @@ bool AESTB::ParseCLIArguments(int argc, char **argv, bool &exit_app) {
       case '?':
       default:;
         // Ignore unrecognized options since they might be consumed by
-        // Verilator's built-in parsing below (?).
+        // other utils
     }
-  }
-
-  if (not key_inited or not input_inited) {
-    std::cerr << "ERROR: missing --key or --input." << std::endl;
-    PrintHelp();
-    return false;
   }
 
   return true;
@@ -136,9 +123,11 @@ bool AESTB::ParseCLIArguments(int argc, char **argv, bool &exit_app) {
 void AESTB::PrintHelp() const {
   std::cout << "AES TB inputs:\n\n"
                "-k|--key=HEXSTRING\n"
-               "  128bit key for AES ECB encrypt\n\n"
+               "  128bit key for AES ECB encrypt\n"
+               "  default: 2b7e151628aed2a6abf7158809cf4f3c\n\n"
                "-i|--input=HEXSTRING\n"
-               "  128bit inpt for AES ECB encrypt\n\n"
+               "  128bit input for AES ECB encrypt\n"
+               "  default: 6bc1bee22e409f96e93d7e117393172a\n\n"
                "-h|--help\n"
                "  Show help\n\n";
 }
@@ -150,10 +139,10 @@ int main(int argc, char **argv) {
   // Init verilog instance
   aes_tb top;
 
-  // top.aes_key[3]   = 0x2b7e1516;
-  // top.aes_key[2]   = 0x28aed2a6;
-  // top.aes_key[1]   = 0xabf71588;
-  // top.aes_key[0]   = 0x09cf4f3c;
+  top.aes_key[3]   = 0x2b7e1516;
+  top.aes_key[2]   = 0x28aed2a6;
+  top.aes_key[1]   = 0xabf71588;
+  top.aes_key[0]   = 0x09cf4f3c;
   top.aes_input[3] = 0x6bc1bee2;
   top.aes_input[2] = 0x2e409f96;
   top.aes_input[1] = 0xe93d7e11;

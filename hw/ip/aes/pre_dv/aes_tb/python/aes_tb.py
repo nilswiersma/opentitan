@@ -15,7 +15,7 @@ print(os.path.abspath(__file__))
 Vexec = os.path.join(os.path.split(os.path.abspath(__file__))[0], 
 	'..', '..', '..', '..', '..', '..', 'build', 'lowrisc_dv_verilator_aes_tb_0', 'default-verilator', 'Vaes_tb')
 
-for _ in range(200):
+for _ in range(2):
 	i = os.urandom(16)
 	c = aes_encrypt(i[::-1])[::-1]
 	cmd = [Vexec,
