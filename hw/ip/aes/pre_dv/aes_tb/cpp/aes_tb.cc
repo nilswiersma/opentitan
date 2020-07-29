@@ -66,10 +66,11 @@ bool AESTB::ParseCLIArguments(int argc, char **argv, bool &exit_app) {
       {"input", required_argument, nullptr, 'i'},
       {nullptr, no_argument, nullptr, 0}};
 
-
   // Reset the command parsing index in-case other utils have already parsed
   // some arguments
   optind = 1;
+  std::string optarg_s;
+  bool key_inited = false, input_inited = false;
 
   while (1) {
     int c = getopt_long(argc, argv, "k:i:h", long_options, nullptr);
@@ -80,15 +81,36 @@ bool AESTB::ParseCLIArguments(int argc, char **argv, bool &exit_app) {
 
     // Disable error reporting by getopt
     opterr = 0;
+    optarg_s = optarg;
 
     switch (c) {
       case 0:
         break;
       case 'k':
-        std::cout << "k" << optarg << std::endl;
+        if (optarg_s.length() != 32) {
+          std::cerr << "ERROR: Invalid --key arg length (" << optarg_s.length() << "): " << optarg_s << std::endl;
+          return false;
+        }
+
+        top_->aes_key[3] = std::stoul(optarg_s.substr(0,8) , nullptr, 16);
+        top_->aes_key[2] = std::stoul(optarg_s.substr(8,8) , nullptr, 16);
+        top_->aes_key[1] = std::stoul(optarg_s.substr(16,8), nullptr, 16);
+        top_->aes_key[0] = std::stoul(optarg_s.substr(24,8), nullptr, 16);
+
+        key_inited = true;
         break;
       case 'i':
-        std::cout << "i" << optarg << std::endl;
+        if (optarg_s.length() != 32) {
+          std::cerr << "ERROR: Invalid --input arg length (" << optarg_s.length() << "): " << optarg_s << std::endl;
+          return false;
+        }
+
+        top_->aes_input[3] = std::stoul(optarg_s.substr(0,8) , nullptr, 16);
+        top_->aes_input[2] = std::stoul(optarg_s.substr(8,8) , nullptr, 16);
+        top_->aes_input[1] = std::stoul(optarg_s.substr(16,8), nullptr, 16);
+        top_->aes_input[0] = std::stoul(optarg_s.substr(24,8), nullptr, 16);
+
+        input_inited = true;
         break;
       case 'h':
         PrintHelp();
@@ -100,6 +122,12 @@ bool AESTB::ParseCLIArguments(int argc, char **argv, bool &exit_app) {
         // Ignore unrecognized options since they might be consumed by
         // Verilator's built-in parsing below (?).
     }
+  }
+
+  if (not key_inited or not input_inited) {
+    std::cerr << "ERROR: missing --key or --input." << std::endl;
+    PrintHelp();
+    return false;
   }
 
   return true;
@@ -122,10 +150,10 @@ int main(int argc, char **argv) {
   // Init verilog instance
   aes_tb top;
 
-  top.aes_key[3]   = 0x2b7e1516;
-  top.aes_key[2]   = 0x28aed2a6;
-  top.aes_key[1]   = 0xabf71588;
-  top.aes_key[0]   = 0x09cf4f3c;
+  // top.aes_key[3]   = 0x2b7e1516;
+  // top.aes_key[2]   = 0x28aed2a6;
+  // top.aes_key[1]   = 0xabf71588;
+  // top.aes_key[0]   = 0x09cf4f3c;
   top.aes_input[3] = 0x6bc1bee2;
   top.aes_input[2] = 0x2e409f96;
   top.aes_input[1] = 0xe93d7e11;
