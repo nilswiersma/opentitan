@@ -10,6 +10,10 @@ from opentitanroot:
 
 `gtkwave sim.fst`
 
-verify aes ecb 128, requires [cryptography package](https://pypi.org/project/cryptography/)
+verify aes ecb 128, requires [cryptography package](https://pypi.org/project/cryptography/):
 
+run once:
+`fusesoc --cores-root=. run --setup --build lowrisc:dv_verilator:aes_tb`
+
+then run:
 `python3 aes_tb.py`
