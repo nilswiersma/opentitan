@@ -9,6 +9,10 @@ module aes_tb #(
   input  logic clk_i,
   input  logic rst_ni,
 
+  input logic [127:0] aes_input,
+  input logic [127:0] aes_key,
+  output logic [127:0] aes_output,
+
   output logic test_done_o,
   output logic test_passed_o
 );
@@ -24,8 +28,8 @@ module aes_tb #(
 
   // dv_utils_pkg::if_mode_e if_mode; // interface mode - Host or Device
 
-  prim_alert_pkg::alert_rx_t [aes_pkg::NumAlerts-1:0] alert_rx;
-  assign alert_rx[0] = 4'b0101;
+  // prim_alert_pkg::alert_rx_t [aes_pkg::NumAlerts-1:0] alert_rx;
+  // assign alert_rx[0] = 4'b0101;
 
 
   aes aes (
@@ -37,7 +41,7 @@ module aes_tb #(
     .tl_i                 (      h2d  ),
     .tl_o                 (      d2h  ),
 
-    .alert_rx_i           ( alert_rx  ),
+    .alert_rx_i           (           ),
     .alert_tx_o           (           )
   );
 
@@ -45,10 +49,18 @@ module aes_tb #(
   // logic [31:0] reg_offset;
   logic [31:0] fsm;
 
+  // logic [127:0] aes_input;
+  // logic [127:0] aes_key;
+  // logic [127:0] aes_output;
+
   always_ff @(posedge clk_i or negedge rst_ni) begin : tb_ctrl
 
     if (!rst_ni) begin
       count <= 32'b0;
+      // aes_key <= 127'h2b7e1516_28aed2a6_abf71588_09cf4f3c;//00000000_00000000_00000000_00000000;//
+      // aes_input <= 127'h6bc1bee2_2e409f96_e93d7e11_7393172a;//00000000_00000000_00000000_00000001;//
+      // aes_input <= 127'h0000_0000_0000_0000;
+
       test_done_o <= 1'b0;
       test_passed_o <= 1'b0;
       // reg_offset <= 32'b0;
@@ -84,7 +96,7 @@ module aes_tb #(
             h2d.a_data    <= {1'b1, 3'b001, 4'b0001, 1'b0}; // manual_operation=manual, key_len=aes_128, mode=aes_ecb, operation=encrypt
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 3) begin // ctrl needs a few more cycles to setup than data
             fsm <= {1'b1, AES_KEY0_OFFSET};
             count <= 32'b0;        
           end
@@ -93,10 +105,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_KEY0_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_KEY0_OFFSET;
-            h2d.a_data    <= 32'b0;//$random;
+            h2d.a_data    <= aes_key[31:0];//32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_KEY1_OFFSET};
             count <= 32'b0;        
           end
@@ -105,10 +117,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_KEY1_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_KEY1_OFFSET;
-            h2d.a_data    <= 32'b0;//$random;
+            h2d.a_data    <= aes_key[63:32];//32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_KEY2_OFFSET};
             count <= 32'b0;        
           end
@@ -117,10 +129,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_KEY2_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_KEY2_OFFSET;
-            h2d.a_data    <= 32'b0;//$random;
+            h2d.a_data    <= aes_key[95:64];//32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_KEY3_OFFSET};
             count <= 32'b0;        
           end
@@ -129,10 +141,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_KEY3_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_KEY3_OFFSET;
-            h2d.a_data    <= 32'b0;//$random;
+            h2d.a_data    <= aes_key[127:96];//32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_KEY4_OFFSET};
             count <= 32'b0;        
           end
@@ -144,7 +156,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_KEY5_OFFSET};
             count <= 32'b0;        
           end
@@ -156,7 +168,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_KEY6_OFFSET};
             count <= 32'b0;        
           end
@@ -168,7 +180,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_KEY7_OFFSET};
             count <= 32'b0;        
           end
@@ -180,7 +192,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_IV0_OFFSET};
             count <= 32'b0;        
           end
@@ -192,7 +204,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_IV1_OFFSET};
             count <= 32'b0;        
           end
@@ -204,7 +216,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_IV2_OFFSET};
             count <= 32'b0;        
           end
@@ -216,7 +228,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_IV3_OFFSET};
             count <= 32'b0;        
           end
@@ -228,7 +240,7 @@ module aes_tb #(
             h2d.a_data    <= 32'b0;//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_DATA_IN0_OFFSET};
             count <= 32'b0;        
           end
@@ -237,10 +249,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_DATA_IN0_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_DATA_IN0_OFFSET;
-            h2d.a_data    <= 32'b01;//$random;
+            h2d.a_data    <= aes_input[31:0];//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_DATA_IN1_OFFSET};
             count <= 32'b0;        
           end
@@ -249,10 +261,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_DATA_IN1_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_DATA_IN1_OFFSET;
-            h2d.a_data    <= 32'b0;//$random;
+            h2d.a_data    <= aes_input[63:32];//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_DATA_IN2_OFFSET};
             count <= 32'b0;        
           end
@@ -261,10 +273,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_DATA_IN2_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_DATA_IN2_OFFSET;
-            h2d.a_data    <= 32'b0;//$random;
+            h2d.a_data    <= aes_input[95:64];//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_DATA_IN3_OFFSET};
             count <= 32'b0;        
           end
@@ -273,10 +285,10 @@ module aes_tb #(
         if (fsm == {1'b1, AES_DATA_IN3_OFFSET}) begin
           if (count == 0) begin
             h2d.a_address <= AES_DATA_IN3_OFFSET;
-            h2d.a_data    <= 32'b0;//$random;
+            h2d.a_data    <= aes_input[127:96];//$random;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_TRIGGER_OFFSET};
             count <= 32'b0;        
           end
@@ -288,7 +300,7 @@ module aes_tb #(
             h2d.a_data    <= 1'b1;
             h2d.a_mask     <= 4'b1111;
           end 
-          if (count == 3) begin
+          if (count == 1) begin
             fsm <= {1'b1, AES_STATUS_OFFSET};
             count  <= 32'b0;        
           end
@@ -306,7 +318,7 @@ module aes_tb #(
             count <= 32'b0;        
           end
 
-          $display("AES_STATUS_OFFSET %0h.", d2h.d_data);
+          // $display("AES_STATUS_OFFSET %0h.", d2h.d_data);
         end
       // above works
 
@@ -314,8 +326,9 @@ module aes_tb #(
         if (count == 0) begin
           h2d.a_address <= AES_DATA_OUT0_OFFSET;
         end 
-        if (count == 3) begin
-          $display("AES_DATA_OUT0_OFFSET %0h.", d2h.d_data);
+        if (count == 3) begin // these reads also take more cycles to have data ready
+          // $display("AES_DATA_OUT0_OFFSET %0h.", d2h.d_data);
+          aes_output[31:0] <= d2h.d_data;
           fsm <= {1'b1, AES_DATA_OUT1_OFFSET};
           count <= 32'b0;        
         end
@@ -326,7 +339,8 @@ module aes_tb #(
           h2d.a_address <= AES_DATA_OUT1_OFFSET;
         end 
         if (count == 3) begin
-          $display("AES_DATA_OUT1_OFFSET %0h.", d2h.d_data);
+          // $display("AES_DATA_OUT1_OFFSET %0h.", d2h.d_data);
+          aes_output[63:32] <= d2h.d_data;
           fsm <= {1'b1, AES_DATA_OUT2_OFFSET};
           count <= 32'b0;        
         end
@@ -337,7 +351,8 @@ module aes_tb #(
           h2d.a_address <= AES_DATA_OUT2_OFFSET;
         end 
         if (count == 3) begin
-          $display("AES_DATA_OUT2_OFFSET %0h.", d2h.d_data);
+          // $display("AES_DATA_OUT2_OFFSET %0h.", d2h.d_data);
+          aes_output[95:64] <= d2h.d_data;
           fsm <= {1'b1, AES_DATA_OUT3_OFFSET};
           count <= 32'b0;        
         end
@@ -348,19 +363,20 @@ module aes_tb #(
           h2d.a_address <= AES_DATA_OUT3_OFFSET;
         end 
         if (count == 3) begin
-          $display("AES_DATA_OUT3_OFFSET %0h.", d2h.d_data);
-          test_done_o <= 1'b1;
+          // $display("AES_DATA_OUT3_OFFSET %0h.", d2h.d_data);
+          aes_output[127:96] <= d2h.d_data;
           fsm <= 12'hFFF;
-          count <= 32'b0;        
+          count <= 32'b0;   
+          test_done_o <= 1'b1;
         end
       end
 
       if (fsm == 12'hFFF) begin
+        // $display("aes_key    %h", aes_key);
+        // $display("aes_input  %h", aes_input);
+        // $display("aes_output %h", aes_output);
         test_done_o <= 1'b1;
       end
-
-
-
 
       if (count > 32'h8FF) begin
         test_done_o <= 1'b1;
