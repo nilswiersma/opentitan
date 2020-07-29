@@ -9,3 +9,7 @@ from opentitanroot:
 `./build/lowrisc_dv_verilator_aes_tb_0/default-verilator/Vaes_tb --trace`
 
 `gtkwave sim.fst`
+
+verify aes ecb 128, requires [cryptography package](https://pypi.org/project/cryptography/)
+
+`python3 aes_tb.py`
